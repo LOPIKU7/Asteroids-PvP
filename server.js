@@ -46,7 +46,7 @@ setInterval(() => {
             type: types[Math.floor(Math.random() * types.length)]
         });
     }
-}, 8000); // Tenta nascer um novo item a cada 8 segundos
+}, 5000); // Tenta nascer um novo item a cada 8 segundos
 
 io.on('connection', (socket) => {
     socket.on('ping', () => socket.emit('pong'));
