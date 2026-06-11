@@ -2,71 +2,84 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Asteroid PvP Arena - 1080p</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Asteroid PvP - Mobile</title>
 <style>
-  * { box-sizing: border-box; }
-  body, html { margin: 0; padding: 0; color: #fff; font-family: 'Courier New', Courier, monospace; width: 100vw; height: 100vh; overflow: hidden; background-color: #050508; }
-  canvas { display: none; background: #050508; position: absolute; box-shadow: 0 0 20px rgba(0,255,255,0.1); }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: sans-serif; touch-action: none; }
   
-  #hud { position: absolute; top: 15px; left: 0; right: 0; display: none; justify-content: space-between; padding: 0 30px; pointer-events: none; text-shadow: 2px 2px 4px #000; z-index: 5; }
-  .player-status { background: rgba(0, 0, 0, 0.7); padding: 15px; border: 2px solid #333; border-radius: 8px; width: 280px; transition: border-color 0.3s; }
-  .hud-title { font-weight: bold; margin-bottom: 8px; font-size: 18px; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
-  .hp-bar-container { background: #222; width: 100%; height: 15px; border-radius: 4px; overflow: hidden; margin-bottom: 5px; }
-  .hp-bar { height: 100%; width: 100%; transition: width 0.1s; }
-  .buffs-container { font-size: 12px; margin-top: 8px; font-weight: bold; min-height: 18px; display: flex; gap: 8px; flex-wrap: wrap;}
-  
-  .overlay-ui { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(5, 7, 10, 0.96); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
-  h1 { color: #0ff; margin-bottom: 5px; font-size: 40px; text-transform: uppercase; text-shadow: 0 0 10px #0ff; text-align: center;}
-  p { font-size: 16px; margin-bottom: 20px; color: #aaa; text-align: center; max-width: 600px;}
-  
-  .btn { background: #111; border: 2px solid #0ff; color: #0ff; padding: 12px 30px; font-family: inherit; font-size: 16px; cursor: pointer; text-transform: uppercase; transition: 0.2s; box-shadow: 0 0 8px rgba(0,255,255,0.2); margin: 5px; }
-  .btn:hover { background: #0ff; color: #000; font-weight: bold; box-shadow: 0 0 15px #0ff;}
+  canvas { display: none; background: #050508; position: absolute; }
 
-  .setup-container { display: flex; justify-content: center; margin-bottom: 20px; width: 100%; max-width: 500px; }
-  .player-box { flex: 1; background: rgba(255,255,255,0.04); padding: 20px; border-radius: 8px; border: 1px solid #444; display: flex; flex-direction: column; gap: 12px; align-items: center; }
-  .input-text { background: #111; border: 1px solid #555; color: #fff; padding: 10px; font-size: 16px; font-family: inherit; border-radius: 4px; outline: none; width: 100%; text-align: center;}
-  .input-text:focus { border-color: #0ff; }
-  .color-picker-wrapper { display: flex; align-items: center; gap: 15px; font-size: 14px; }
-  .input-color { background: none; border: none; width: 45px; height: 35px; cursor: pointer; padding: 0; }
+  /* Trava visual para modo Retrato */
+  @media screen and (orientation: portrait) {
+    #portrait-warning { display: flex !important; }
+  }
+  #portrait-warning {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #050508;
+    z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #0ff;
+  }
 
-  #server-status { margin-top: 15px; color: #ffd700; font-size: 14px; }
+  /* Controles Mobile */
+  #mobile-controls {
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 40%;
+    display: none; justify-content: space-between; align-items: flex-end;
+    padding: 20px; pointer-events: none; z-index: 50;
+  }
+  .control-group { display: flex; gap: 20px; pointer-events: auto; }
+  .joy-btn {
+    width: 80px; height: 80px; background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(0,255,255,0.3); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #0ff; font-size: 30px; user-select: none;
+  }
+  .joy-btn:active { background: rgba(0,255,255,0.4); }
+
+  /* UI de Menu e HUD */
+  .overlay-ui { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,7,10,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 60; color: #fff; }
+  #hud { position: absolute; top: 10px; width: 100%; display: none; justify-content: space-between; padding: 0 20px; pointer-events: none; color: #fff; z-index: 40; }
+  .hp-bar-bg { width: 150px; height: 10px; background: #222; border-radius: 5px; overflow: hidden; }
+  .hp-bar-fill { height: 100%; background: #0ff; width: 100%; transition: 0.2s; }
+  
+  #game-over-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 80; color: #fff; }
 </style>
 </head>
 <body>
 
-<div id="main-menu" class="overlay-ui">
-  <h1>Arena Duelo (Full HD)</h1>
-  <div class="setup-container">
-    <div class="player-box" style="border-top: 4px solid #0ff;">
-      <span style="font-weight: bold; color: #0ff; font-size: 18px;">SEU PILOTO (WASD + Espaço)</span>
-      <input type="text" id="p-name" class="input-text" placeholder="Digite seu Nome" value="Piloto">
-      <div class="color-picker-wrapper">
-        <label>Cor da Nave:</label>
-        <input type="color" id="p-color" class="input-color" value="#00ffff">
-      </div>
-      <button class="btn" style="width: 100%; margin-top: 10px;" onclick="connectToServer()">Entrar na Arena</button>
-    </div>
-  </div>
-  <div id="server-status">Aguardando ação...</div>
+<div id="portrait-warning">
+  <h1>🔄</h1>
+  <h2>Gire o celular para a horizontal</h2>
 </div>
 
-<div id="game-over-screen" class="overlay-ui" style="display: none; z-index: 20; background: rgba(0,0,0,0.85);">
-  <h1 id="winner-name" style="font-size: 60px; margin-bottom: 10px;">JOGADOR VENCEU!</h1>
-  <p style="color: #fff; font-size: 20px;">Preparando a revanche em instantes...</p>
+<div id="main-menu" class="overlay-ui">
+  <h1 style="color:#0ff; text-shadow: 0 0 10px #0ff;">ASTEROID PvP</h1>
+  <input type="text" id="p-name" placeholder="Nome" value="Piloto" style="padding:10px; border-radius:5px; border:none; margin-bottom:10px; text-align:center;">
+  <button onclick="startGame()" style="padding:15px 40px; background:#0ff; border:none; border-radius:5px; font-weight:bold; cursor:pointer;">JOGAR AGORA</button>
+</div>
+
+<div id="game-over-screen">
+  <h1 id="winner-text" style="font-size:50px;">VENCEDOR!</h1>
+  <p>Reiniciando arena...</p>
 </div>
 
 <div id="hud">
-  <div class="player-status" id="my-hud-card">
-    <div id="my-hud-title" class="hud-title">Conectando...</div>
-    <div class="hp-bar-container"><div id="my-hp" class="hp-bar" style="background-color: #0ff;"></div></div>
-    <div style="font-size: 13px; color: #888;">Meu HP: <span id="my-hp-text">100</span>/100</div>
-    <div id="my-buffs" class="buffs-container"></div>
+  <div>
+    <div id="hud-name" style="font-weight:bold;">PILOTO</div>
+    <div class="hp-bar-bg"><div id="hp-fill" class="hp-bar-fill"></div></div>
+    <div id="buff-list" style="font-size:10px; margin-top:5px;"></div>
   </div>
-  <div class="player-status" style="text-align: right; border-color: #444;">
-    <div class="hud-title" style="color: #aaa;">Status da Rede</div>
-    <div style="font-size: 13px; color: #888;">Ping: <span id="ping-text" style="color: #0f0;">--</span> ms</div>
-    <div style="font-size: 13px; color: #888; margin-top: 5px;">Jogadores Online: <span id="players-online">0</span></div>
+  <div style="text-align:right;">
+    <div id="online-count">Online: 0</div>
+  </div>
+</div>
+
+<div id="mobile-controls">
+  <div class="control-group">
+    <div class="joy-btn" id="m-left">◀</div>
+    <div class="joy-btn" id="m-right">▶</div>
+  </div>
+  <div class="control-group">
+    <div class="joy-btn" id="m-up" style="background:rgba(0,255,0,0.1);">🚀</div>
+    <div class="joy-btn" id="m-shoot" style="background:rgba(255,0,0,0.1);">🔥</div>
   </div>
 </div>
 
@@ -76,217 +89,117 @@
 <script>
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
-  
-  // O scale agora faz a matemática baseada em 1920x1080 (Full HD)
+  const keys = { up: false, left: false, right: false, shoot: false };
+  let socket, myId, serverState = {players:{}, lasers:[], roids:[], items:[]};
+
   function resize() {
     const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
     canvas.style.width = (1920 * scale) + 'px';
     canvas.style.height = (1080 * scale) + 'px';
-    canvas.style.position = 'absolute';
     canvas.style.left = (window.innerWidth - (1920 * scale)) / 2 + 'px';
     canvas.style.top = (window.innerHeight - (1080 * scale)) / 2 + 'px';
   }
   window.addEventListener('resize', resize);
   resize();
 
-  let socket;
-  let serverGameState = { players: {}, lasers: [], roids: [], items: [] };
-  let myId = null;
-  let lastPingTime = 0;
-  const keys = { up: false, left: false, right: false, shoot: false };
-
-  function connectToServer() {
-    const name = document.getElementById('p-name').value.trim() || 'Piloto';
-    const color = document.getElementById('p-color').value;
+  function startGame() {
+    socket = io();
+    const name = document.getElementById('p-name').value;
     
-    document.getElementById('server-status').innerText = 'Conectando...';
-
-    socket = io(); 
-
     socket.on('connect', () => {
       myId = socket.id;
       document.getElementById('main-menu').style.display = 'none';
-      canvas.style.display = 'block';
       document.getElementById('hud').style.display = 'flex';
-      
-      document.getElementById('my-hud-card').style.borderColor = color;
-      document.getElementById('my-hud-title').style.color = color;
-      document.getElementById('my-hud-title').innerText = name;
-      document.getElementById('my-hp').style.backgroundColor = color;
-
-      socket.emit('joinGame', { name, color });
-      
-      setInterval(() => {
-        lastPingTime = Date.now();
-        socket.emit('ping');
-      }, 2000);
-      
-      requestAnimationFrame(draw);
+      if ('ontouchstart' in window) document.getElementById('mobile-controls').style.display = 'flex';
+      canvas.style.display = 'block';
+      socket.emit('joinGame', { name, color: '#0ff' });
+      requestAnimationFrame(gameLoop);
     });
 
-    socket.on('pong', () => document.getElementById('ping-text').innerText = Date.now() - lastPingTime);
-
-    socket.on('gameOver', (data) => {
-      document.getElementById('winner-name').innerText = data.winnerName + " VENCEU!";
-      document.getElementById('winner-name').style.color = data.winnerColor;
+    socket.on('gameState', s => { serverState = s; updateHUD(); });
+    socket.on('gameOver', d => {
+      document.getElementById('winner-text').innerText = d.winnerName + " VENCEU!";
       document.getElementById('game-over-screen').style.display = 'flex';
     });
-
-    socket.on('gameRestart', () => {
-      document.getElementById('game-over-screen').style.display = 'none';
-    });
-
-    socket.on('gameState', (state) => {
-      serverGameState = state;
-      updateHUD();
-    });
-
-    socket.on('disconnect', () => {
-      alert("Desconectado do Servidor.");
-      window.location.reload();
-    });
-
-    window.addEventListener('keydown', e => {
-      if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.up = true;
-      if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = true;
-      if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = true;
-      if (e.code === 'Space' || e.code === 'Enter') keys.shoot = true;
-      socket.emit('playerInput', keys);
-    });
-
-    window.addEventListener('keyup', e => {
-      if (e.code === 'KeyW' || e.code === 'ArrowUp') keys.up = false;
-      if (e.code === 'KeyA' || e.code === 'ArrowLeft') keys.left = false;
-      if (e.code === 'KeyD' || e.code === 'ArrowRight') keys.right = false;
-      if (e.code === 'Space' || e.code === 'Enter') keys.shoot = false;
-      socket.emit('playerInput', keys);
-    });
+    socket.on('gameRestart', () => document.getElementById('game-over-screen').style.display = 'none');
   }
+
+  // Lógica de Toque Mobile
+  function setupBtn(id, key) {
+    const el = document.getElementById(id);
+    const start = (e) => { e.preventDefault(); keys[key] = true; socket.emit('playerInput', keys); };
+    const end = (e) => { e.preventDefault(); keys[key] = false; socket.emit('playerInput', keys); };
+    el.addEventListener('touchstart', start); el.addEventListener('touchend', end);
+  }
+  setupBtn('m-left', 'left'); setupBtn('m-right', 'right');
+  setupBtn('m-up', 'up'); setupBtn('m-shoot', 'shoot');
+
+  // Lógica de Teclado (PC)
+  window.addEventListener('keydown', e => {
+    if(e.code==='KeyW'||e.code==='ArrowUp') keys.up=true;
+    if(e.code==='KeyA'||e.code==='ArrowLeft') keys.left=true;
+    if(e.code==='KeyD'||e.code==='ArrowRight') keys.right=true;
+    if(e.code==='Space') keys.shoot=true;
+    socket.emit('playerInput', keys);
+  });
+  window.addEventListener('keyup', e => {
+    if(e.code==='KeyW'||e.code==='ArrowUp') keys.up=false;
+    if(e.code==='KeyA'||e.code==='ArrowLeft') keys.left=false;
+    if(e.code==='KeyD'||e.code==='ArrowRight') keys.right=false;
+    if(e.code==='Space') keys.shoot=false;
+    socket.emit('playerInput', keys);
+  });
 
   function updateHUD() {
-    document.getElementById('players-online').innerText = Object.keys(serverGameState.players).length;
-
-    if (myId && serverGameState.players[myId]) {
-      let me = serverGameState.players[myId];
-      let hpPercent = Math.max(0, me.hp);
-      
-      document.getElementById('my-hp').style.width = hpPercent + '%';
-      document.getElementById('my-hp-text').innerText = hpPercent;
-      
-      // HUD Inteligente: Converte os frames em segundos restantes arredondados
-      let buffsHtml = "";
-      if (me.shieldTimer > 0) buffsHtml += `<span style="color: #ffd700; background: #222; padding: 2px 6px; border-radius: 4px;">🛡️ ESCUDO: ${Math.ceil(me.shieldTimer / 60)}s </span>`;
-      if (me.tripleTimer > 0) buffsHtml += `<span style="color: #ff9900; background: #222; padding: 2px 6px; border-radius: 4px;">🔥 TRIPLO: ${Math.ceil(me.tripleTimer / 60)}s </span>`;
-      if (me.speedTimer > 0) buffsHtml += `<span style="color: #00aaff; background: #222; padding: 2px 6px; border-radius: 4px;">⚡ VELÔ: ${Math.ceil(me.speedTimer / 60)}s </span>`;
-      document.getElementById('my-buffs').innerHTML = buffsHtml;
+    const me = serverState.players[myId];
+    if(me) {
+      document.getElementById('hp-fill').style.width = me.hp + '%';
+      document.getElementById('hud-name').innerText = me.name;
+      let b = "";
+      if(me.shieldTimer>0) b+="🛡️ ESCUDO "; if(me.tripleTimer>0) b+="🔥 TRIPLO "; if(me.speedTimer>0) b+="⚡ VELÔ ";
+      document.getElementById('buff-list').innerText = b;
     }
+    document.getElementById('online-count').innerText = "Online: " + Object.keys(serverState.players).length;
   }
 
-  function drawVectorShip(ship) {
-    if (ship.thrusting) {
-      // Se estiver com Velocidade, o fogo da nave fica maior e azul
-      ctx.fillStyle = ship.speedTimer > 0 ? "#00ffff" : "red";
-      ctx.strokeStyle = "orange";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      let flameLen = ship.speedTimer > 0 ? 2.5 : 1.5;
-      ctx.moveTo(ship.x - ship.r * (2 / 3 * Math.cos(ship.a) + 0.4 * Math.sin(ship.a)), ship.y + ship.r * (2 / 3 * Math.sin(ship.a) - 0.4 * Math.cos(ship.a)));
-      ctx.lineTo(ship.x - ship.r * flameLen * Math.cos(ship.a), ship.y + ship.r * flameLen * Math.sin(ship.a));
-      ctx.lineTo(ship.x - ship.r * (2 / 3 * Math.cos(ship.a) - 0.4 * Math.sin(ship.a)), ship.y + ship.r * (2 / 3 * Math.sin(ship.a) + 0.4 * Math.cos(ship.a)));
-      ctx.closePath();
-      ctx.fill(); ctx.stroke();
-    }
-
-    ctx.strokeStyle = ship.color;
-    ctx.fillStyle = "#0c0d14";
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    ctx.moveTo(ship.x + 4 / 3 * ship.r * Math.cos(ship.a), ship.y - 4 / 3 * ship.r * Math.sin(ship.a)); 
-    ctx.lineTo(ship.x - ship.r * (2 / 3 * Math.cos(ship.a) + Math.sin(ship.a)), ship.y + ship.r * (2 / 3 * Math.sin(ship.a) - Math.cos(ship.a))); 
-    ctx.lineTo(ship.x - ship.r * (2 / 3 * Math.cos(ship.a) - Math.sin(ship.a)), ship.y + ship.r * (2 / 3 * Math.sin(ship.a) + Math.cos(ship.a))); 
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-
-    // Bolha do Escudo
-    if (ship.shieldTimer > 0) {
-      ctx.strokeStyle = "rgba(255, 215, 0, 0.8)";
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = "#ffd700";
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.arc(ship.x, ship.y, ship.r * 1.8, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.shadowBlur = 0; 
-    }
-
-    ctx.fillStyle = "#fff";
-    ctx.font = "14px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText(ship.name, ship.x, ship.y - ship.r - 20);
-    
-    ctx.fillStyle = "#f00";
-    ctx.fillRect(ship.x - 20, ship.y - ship.r - 12, 40, 5);
-    ctx.fillStyle = "#0f0";
-    ctx.fillRect(ship.x - 20, ship.y - ship.r - 12, 40 * (Math.max(0, ship.hp) / 100), 5);
-  }
-
-  function draw() {
+  function gameLoop() {
     ctx.fillStyle = "#050508";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0,0,1920,1080);
 
-    // Renderiza as cápsulas dos poderes caídas no mapa
-    if (serverGameState.items) {
-      for (let m of serverGameState.items) {
-        let itemColor = "#fff", symbol = "?";
-        if (m.type === 'TRIPLE') { itemColor = "#ff9900"; symbol = "T"; }
-        else if (m.type === 'SPEED') { itemColor = "#00aaff"; symbol = "V"; }
-        else if (m.type === 'SHIELD') { itemColor = "#ffd700"; symbol = "S"; }
-
-        ctx.strokeStyle = itemColor;
-        ctx.lineWidth = 2;
-        ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-        
-        // Efeito de pulsação suave
-        let pulse = 20 + Math.sin(Date.now() / 200) * 2;
-        
-        ctx.beginPath();
-        ctx.arc(m.x, m.y, pulse, 0, Math.PI*2);
-        ctx.fill(); ctx.stroke();
-
-        ctx.fillStyle = itemColor;
-        ctx.font = "16px Arial";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(symbol, m.x, m.y);
-      }
+    // Itens
+    for(let it of serverState.items) {
+      ctx.beginPath(); ctx.arc(it.x, it.y, it.r, 0, Math.PI*2);
+      ctx.strokeStyle = "#fff"; ctx.stroke();
+      ctx.fillStyle = "#fff"; ctx.font = "20px Arial"; ctx.textAlign="center";
+      ctx.fillText(it.type[0], it.x, it.y+7);
     }
 
-    ctx.strokeStyle = "#444655";
-    ctx.fillStyle = "#16161e";
-    ctx.lineWidth = 2;
-    for (let r of serverGameState.roids) {
+    // Asteroides
+    ctx.strokeStyle = "#444"; ctx.lineWidth = 2;
+    for(let r of serverState.roids) {
       ctx.beginPath();
-      for (let j = 0; j < r.vert; j++) {
-        ctx.lineTo(r.x + r.r * r.offs[j] * Math.cos(r.a + j * Math.PI * 2 / r.vert), 
-                   r.y + r.r * r.offs[j] * Math.sin(r.a + j * Math.PI * 2 / r.vert));
+      for(let i=0; i<r.vert; i++) {
+        ctx.lineTo(r.x + r.r*r.offs[i]*Math.cos(r.a + i*Math.PI*2/r.vert), r.y + r.r*r.offs[i]*Math.sin(r.a + i*Math.PI*2/r.vert));
       }
-      ctx.closePath();
-      ctx.fill(); ctx.stroke();
+      ctx.closePath(); ctx.stroke();
     }
 
-    for (let l of serverGameState.lasers) {
-      let ownerShip = serverGameState.players[l.owner];
-      ctx.fillStyle = ownerShip ? ownerShip.color : "#0ff";
-      ctx.beginPath();
-      ctx.arc(l.x, l.y, l.r, 0, Math.PI * 2);
-      ctx.fill();
+    // Lasers
+    for(let l of serverState.lasers) {
+      ctx.fillStyle = "#0ff"; ctx.beginPath(); ctx.arc(l.x, l.y, l.r, 0, Math.PI*2); ctx.fill();
     }
 
-    for (let id in serverGameState.players) {
-      drawVectorShip(serverGameState.players[id]);
+    // Jogadores
+    for(let id in serverState.players) {
+      const p = serverState.players[id];
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(-p.a);
+      ctx.strokeStyle = p.color; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.moveTo(25, 0); ctx.lineTo(-15, 15); ctx.lineTo(-15, -15); ctx.closePath(); ctx.stroke();
+      if(p.shieldTimer>0) { ctx.beginPath(); ctx.arc(0,0, 40, 0, Math.PI*2); ctx.strokeStyle="gold"; ctx.stroke(); }
+      ctx.restore();
+      ctx.fillStyle="#fff"; ctx.fillText(p.name, p.x, p.y-35);
     }
-
-    requestAnimationFrame(draw);
+    requestAnimationFrame(gameLoop);
   }
 </script>
 </body>
