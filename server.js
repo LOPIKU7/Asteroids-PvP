@@ -42,7 +42,7 @@ setInterval(() => {
             type: types[Math.floor(Math.random() * types.length)]
         });
     }
-}, 8000); 
+}, 3000); 
 
 io.on('connection', (socket) => {
     socket.on('joinGame', (data) => {
