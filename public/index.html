@@ -238,9 +238,9 @@
     if (serverGameState.items) {
       for (let m of serverGameState.items) {
         let itemColor = "#fff", symbol = "?";
-        if (m.type === 'TRIPLE') { itemColor = "#ff9900"; symbol = "🔥"; }
-        else if (m.type === 'SPEED') { itemColor = "#00aaff"; symbol = "⚡"; }
-        else if (m.type === 'SHIELD') { itemColor = "#ffd700"; symbol = "🛡️"; }
+        if (m.type === 'TRIPLE') { itemColor = "#ff9900"; symbol = "T"; }
+        else if (m.type === 'SPEED') { itemColor = "#00aaff"; symbol = "V"; }
+        else if (m.type === 'SHIELD') { itemColor = "#ffd700"; symbol = "S"; }
 
         ctx.strokeStyle = itemColor;
         ctx.lineWidth = 2;
