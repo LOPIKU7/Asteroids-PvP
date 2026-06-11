@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Asteroid PvP Arena - 1v1</title>
+<title>Asteroid PvP Arena - 1080p</title>
 <style>
   * { box-sizing: border-box; }
   body, html { margin: 0; padding: 0; color: #fff; font-family: 'Courier New', Courier, monospace; width: 100vw; height: 100vh; overflow: hidden; background-color: #050508; }
@@ -14,7 +14,7 @@
   .hud-title { font-weight: bold; margin-bottom: 8px; font-size: 18px; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
   .hp-bar-container { background: #222; width: 100%; height: 15px; border-radius: 4px; overflow: hidden; margin-bottom: 5px; }
   .hp-bar { height: 100%; width: 100%; transition: width 0.1s; }
-  .buffs-container { font-size: 11px; margin-top: 8px; font-weight: bold; min-height: 16px; }
+  .buffs-container { font-size: 12px; margin-top: 8px; font-weight: bold; min-height: 18px; display: flex; gap: 8px; flex-wrap: wrap;}
   
   .overlay-ui { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(5, 7, 10, 0.96); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
   h1 { color: #0ff; margin-bottom: 5px; font-size: 40px; text-transform: uppercase; text-shadow: 0 0 10px #0ff; text-align: center;}
@@ -36,7 +36,7 @@
 <body>
 
 <div id="main-menu" class="overlay-ui">
-  <h1>Arena Duelo 1v1</h1>
+  <h1>Arena Duelo (Full HD)</h1>
   <div class="setup-container">
     <div class="player-box" style="border-top: 4px solid #0ff;">
       <span style="font-weight: bold; color: #0ff; font-size: 18px;">SEU PILOTO (WASD + Espaço)</span>
@@ -70,20 +70,21 @@
   </div>
 </div>
 
-<canvas id="gameCanvas" width="1200" height="800"></canvas>
+<canvas id="gameCanvas" width="1920" height="1080"></canvas>
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
   
+  // O scale agora faz a matemática baseada em 1920x1080 (Full HD)
   function resize() {
-    const scale = Math.min(window.innerWidth / 1200, window.innerHeight / 800);
-    canvas.style.width = (1200 * scale) + 'px';
-    canvas.style.height = (800 * scale) + 'px';
+    const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+    canvas.style.width = (1920 * scale) + 'px';
+    canvas.style.height = (1080 * scale) + 'px';
     canvas.style.position = 'absolute';
-    canvas.style.left = (window.innerWidth - (1200 * scale)) / 2 + 'px';
-    canvas.style.top = (window.innerHeight - (800 * scale)) / 2 + 'px';
+    canvas.style.left = (window.innerWidth - (1920 * scale)) / 2 + 'px';
+    canvas.style.top = (window.innerHeight - (1080 * scale)) / 2 + 'px';
   }
   window.addEventListener('resize', resize);
   resize();
@@ -125,14 +126,12 @@
 
     socket.on('pong', () => document.getElementById('ping-text').innerText = Date.now() - lastPingTime);
 
-    // RECEBE O AVISO DE FIM DE JOGO
     socket.on('gameOver', (data) => {
       document.getElementById('winner-name').innerText = data.winnerName + " VENCEU!";
       document.getElementById('winner-name').style.color = data.winnerColor;
       document.getElementById('game-over-screen').style.display = 'flex';
     });
 
-    // RECEBE O AVISO DE RESTART
     socket.on('gameRestart', () => {
       document.getElementById('game-over-screen').style.display = 'none';
     });
@@ -174,21 +173,23 @@
       document.getElementById('my-hp').style.width = hpPercent + '%';
       document.getElementById('my-hp-text').innerText = hpPercent;
       
+      // HUD Inteligente: Converte os frames em segundos restantes arredondados
       let buffsHtml = "";
-      if (me.shieldTimer > 0) buffsHtml += `<span style="color: #ffd700;">🛡️ ESCUDO </span> `;
-      if (me.tripleTimer > 0) buffsHtml += `<span style="color: #ff9900;">🔥 TRIPLO </span> `;
-      if (me.speedTimer > 0) buffsHtml += `<span style="color: #00aaff;">⚡ VELÔ </span>`;
+      if (me.shieldTimer > 0) buffsHtml += `<span style="color: #ffd700; background: #222; padding: 2px 6px; border-radius: 4px;">🛡️ ESCUDO: ${Math.ceil(me.shieldTimer / 60)}s </span>`;
+      if (me.tripleTimer > 0) buffsHtml += `<span style="color: #ff9900; background: #222; padding: 2px 6px; border-radius: 4px;">🔥 TRIPLO: ${Math.ceil(me.tripleTimer / 60)}s </span>`;
+      if (me.speedTimer > 0) buffsHtml += `<span style="color: #00aaff; background: #222; padding: 2px 6px; border-radius: 4px;">⚡ VELÔ: ${Math.ceil(me.speedTimer / 60)}s </span>`;
       document.getElementById('my-buffs').innerHTML = buffsHtml;
     }
   }
 
   function drawVectorShip(ship) {
     if (ship.thrusting) {
+      // Se estiver com Velocidade, o fogo da nave fica maior e azul
       ctx.fillStyle = ship.speedTimer > 0 ? "#00ffff" : "red";
       ctx.strokeStyle = "orange";
       ctx.lineWidth = 1;
       ctx.beginPath();
-      let flameLen = ship.speedTimer > 0 ? 2 : 1.5;
+      let flameLen = ship.speedTimer > 0 ? 2.5 : 1.5;
       ctx.moveTo(ship.x - ship.r * (2 / 3 * Math.cos(ship.a) + 0.4 * Math.sin(ship.a)), ship.y + ship.r * (2 / 3 * Math.sin(ship.a) - 0.4 * Math.cos(ship.a)));
       ctx.lineTo(ship.x - ship.r * flameLen * Math.cos(ship.a), ship.y + ship.r * flameLen * Math.sin(ship.a));
       ctx.lineTo(ship.x - ship.r * (2 / 3 * Math.cos(ship.a) - 0.4 * Math.sin(ship.a)), ship.y + ship.r * (2 / 3 * Math.sin(ship.a) + 0.4 * Math.cos(ship.a)));
@@ -206,31 +207,59 @@
     ctx.closePath();
     ctx.fill(); ctx.stroke();
 
+    // Bolha do Escudo
     if (ship.shieldTimer > 0) {
       ctx.strokeStyle = "rgba(255, 215, 0, 0.8)";
-      ctx.shadowBlur = 10;
+      ctx.shadowBlur = 15;
       ctx.shadowColor = "#ffd700";
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.arc(ship.x, ship.y, ship.r * 1.7, 0, Math.PI * 2);
+      ctx.arc(ship.x, ship.y, ship.r * 1.8, 0, Math.PI * 2);
       ctx.stroke();
       ctx.shadowBlur = 0; 
     }
 
     ctx.fillStyle = "#fff";
-    ctx.font = "12px Arial";
+    ctx.font = "14px Arial";
     ctx.textAlign = "center";
-    ctx.fillText(ship.name, ship.x, ship.y - ship.r - 15);
+    ctx.fillText(ship.name, ship.x, ship.y - ship.r - 20);
     
     ctx.fillStyle = "#f00";
-    ctx.fillRect(ship.x - 15, ship.y - ship.r - 10, 30, 4);
+    ctx.fillRect(ship.x - 20, ship.y - ship.r - 12, 40, 5);
     ctx.fillStyle = "#0f0";
-    ctx.fillRect(ship.x - 15, ship.y - ship.r - 10, 30 * (Math.max(0, ship.hp) / 100), 4);
+    ctx.fillRect(ship.x - 20, ship.y - ship.r - 12, 40 * (Math.max(0, ship.hp) / 100), 5);
   }
 
   function draw() {
     ctx.fillStyle = "#050508";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Renderiza as cápsulas dos poderes caídas no mapa
+    if (serverGameState.items) {
+      for (let m of serverGameState.items) {
+        let itemColor = "#fff", symbol = "?";
+        if (m.type === 'TRIPLE') { itemColor = "#ff9900"; symbol = "🔥"; }
+        else if (m.type === 'SPEED') { itemColor = "#00aaff"; symbol = "⚡"; }
+        else if (m.type === 'SHIELD') { itemColor = "#ffd700"; symbol = "🛡️"; }
+
+        ctx.strokeStyle = itemColor;
+        ctx.lineWidth = 2;
+        ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+        
+        // Efeito de pulsação suave
+        let pulse = 20 + Math.sin(Date.now() / 200) * 2;
+        
+        ctx.beginPath();
+        ctx.arc(m.x, m.y, pulse, 0, Math.PI*2);
+        ctx.fill(); ctx.stroke();
+
+        ctx.fillStyle = itemColor;
+        ctx.font = "16px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(symbol, m.x, m.y);
+      }
+    }
 
     ctx.strokeStyle = "#444655";
     ctx.fillStyle = "#16161e";
